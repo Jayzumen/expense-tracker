@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Income {
-  id        String      @id @default(cuid())
+  id        String  @id @unique @default(cuid())
   description      String
   amount    Float
   createdAt DateTime @default(now())
@@ -19,10 +19,12 @@ model Income {
   user_Id    String 
 
   @@index([user_Id])
+  @@unique([id, user_Id])
+
 }
 
 model Expense {
-  id        String      @id @default(cuid())
+  id        String  @id @unique @default(cuid())
   name      String
   amount    Float
   color     String
@@ -31,4 +33,6 @@ model Expense {
   user_Id    String 
 
   @@index([user_Id])
+  @@unique([id, user_Id])
 }
+

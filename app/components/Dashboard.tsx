@@ -1,32 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import { expenseList } from "../dummyData";
+import { useEffect, useState } from "react";
 import { currencyFormatter } from "../../lib/utils";
 import ExpenseDisplay from "./ExpenseDisplay";
 import ChartDisplay from "./ChartDisplay";
 import IncomeModal from "./Modals/IncomeModal";
 import ExpenseModal from "./Modals/ExpenseModal";
 
-const Dashboard = ({ userId }: { userId: string }) => {
+const Dashboard = () => {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [limit, setLimit] = useState(10000);
+  const [limit, setLimit] = useState(0);
 
-  const [expenses, setExpenses] = useState<Expense[]>(expenseList);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+
+  const getLimit = async () => {
+    const response = await fetch("/api/income", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    const limit = data.reduce((acc: number, curr: Income) => {
+      return acc + curr.amount;
+    }, 0);
+    setLimit(limit);
+  };
+
+  const getExpenses = async () => {
+    const response = await fetch("/api/expenses", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    setExpenses(data);
+  };
+
+  useEffect(() => {
+    getLimit();
+  }, []);
+
+  useEffect(() => {
+    getExpenses();
+  }, [limit]);
 
   return (
     <>
-      <IncomeModal
-        userId={userId}
-        isOpen={showIncomeModal}
-        setIsOpen={setShowIncomeModal}
-      />
-      <ExpenseModal
-        userId={userId}
-        isOpen={showExpenseModal}
-        setIsOpen={setShowExpenseModal}
-      />
+      <IncomeModal isOpen={showIncomeModal} setIsOpen={setShowIncomeModal} />
+      <ExpenseModal isOpen={showExpenseModal} setIsOpen={setShowExpenseModal} />
       <div className="flex flex-col gap-2 min-h-[calc(100vh-80px)] max-w-[700px] mx-auto p-4">
         <h2 className="text-2xl font-semibold text-center">My Expenses</h2>
 

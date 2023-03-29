@@ -1,21 +1,18 @@
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Modal from "./Modal";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { currencyFormatter } from "../../../lib/utils";
 
-interface Income {
-  id: number;
-  amount: number;
-  description: string;
-  createdAt: Date;
-}
-
 const IncomeModal = ({
-  userId,
   isOpen,
   setIsOpen,
 }: {
-  userId: string;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
@@ -23,21 +20,62 @@ const IncomeModal = ({
   const amountRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
 
-  const addIncome = (e: React.FormEvent<HTMLFormElement>) => {
+  const getIncome = async () => {
+    try {
+      const data = await fetch("/api/income", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const incomeData: Income[] = await data.json();
+      setIncome(incomeData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteIncomeEntry = async (id: string) => {
+    try {
+      await fetch(`/api/income`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+        }),
+      });
+      getIncome();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addIncome = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const newIncome: Income = {
-      id: income.length + 1,
-      amount: Number(amountRef.current?.value),
-      description: descriptionRef.current?.value as string,
-      createdAt: new Date(),
-    };
-
-    setIncome([...income, newIncome]);
+    try {
+      await fetch("/api/income", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          description: descriptionRef.current!.value,
+          amount: Number(amountRef.current!.value),
+        }),
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
     amountRef.current!.value = "";
     descriptionRef.current!.value = "";
   };
+
+  useEffect(() => {
+    getIncome();
+  }, []);
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
       <form onSubmit={addIncome} className="flex flex-col gap-4">
@@ -80,20 +118,19 @@ const IncomeModal = ({
         <h3 className="text-2xl font-bold">Income History</h3>
 
         {income.map((i) => {
+          const date = new Date(i.createdAt);
           return (
             <div className="flex justify-between item-center" key={i.id}>
               <div>
                 <p className="font-semibold">{i.description}</p>
-                <small className="text-xs">
-                  {i.createdAt.toLocaleString()}
-                </small>
+                <small className="text-xs">{date.toLocaleString()}</small>
               </div>
               <p className="flex items-center gap-2">
                 {currencyFormatter(i.amount)}
                 <button
-                //   onClick={() => {
-                //     deleteIncomeEntryHandler(i.id);
-                //   }}
+                  onClick={() => {
+                    deleteIncomeEntry(i.id);
+                  }}
                 >
                   <FaRegTrashAlt />
                 </button>

@@ -9,5 +9,5 @@ export default async function HomePage() {
   if (!user) {
     return <NotLoggedIn />;
   }
-  return <Dashboard userId={user.id} />;
+  return <Dashboard />;
 }

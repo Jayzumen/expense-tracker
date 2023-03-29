@@ -4,11 +4,9 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 import Modal from "./Modal";
 
 const ExpenseModal = ({
-  userId,
   isOpen,
   setIsOpen,
 }: {
-  userId: string;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
@@ -16,8 +14,21 @@ const ExpenseModal = ({
   const amountRef = useRef<HTMLInputElement>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
-  const addExpense = (e: React.FormEvent<HTMLFormElement>) => {
+  const addExpense = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    try {
+      const data = await fetch("/api/expenses", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const expenseData: Expense[] = await data.json();
+      setExpenses(expenseData);
+    } catch (error) {
+      console.log(error);
+    }
 
     let newColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
@@ -25,8 +36,25 @@ const ExpenseModal = ({
       newColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     }
 
+    try {
+      await fetch("/api/expenses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: nameRef.current!.value,
+          amount: Number(amountRef.current!.value),
+          color: newColor,
+        }),
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
     nameRef.current!.value = "";
     amountRef.current!.value = "";
+    setIsOpen(false);
   };
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
