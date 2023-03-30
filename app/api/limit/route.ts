@@ -12,7 +12,7 @@ export async function GET(req: Request) {
       user_Id: user?.id,
     },
   });
-  const limit: number = incomeData.reduce((acc: number, curr: Income) => {
+  const income: number = incomeData.reduce((acc: number, curr: Income) => {
     return acc + curr.amount;
   }, 0);
 
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
     return acc + curr.amount;
   }, 0);
 
-  const balance = limit - expense;
+  const balance = income - expense;
 
   return NextResponse.json(balance);
 }
