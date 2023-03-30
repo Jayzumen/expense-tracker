@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/app-beta";
 import prismadb from "../../../lib/prismadb";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   const { userId } = auth();
@@ -10,7 +11,7 @@ export async function GET(req: Request) {
       },
     });
 
-    return new Response(JSON.stringify(data));
+    return NextResponse.json(data);
   } catch (err) {
     console.log(err);
   }
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return new Response(JSON.stringify(data));
+    return NextResponse.json(data);
   } catch (err) {
     console.log(err);
   }
@@ -46,7 +47,7 @@ export async function DELETE(req: Request) {
       },
     });
 
-    return new Response(JSON.stringify("Deleted"));
+    return NextResponse.json({ message: "Deleted" });
   } catch (err) {
     console.log(err);
   }

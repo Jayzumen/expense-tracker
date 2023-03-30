@@ -1,7 +1,9 @@
 "use client";
 
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 import Modal from "./Modal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 const ExpenseModal = ({
   isOpen,
@@ -12,27 +14,22 @@ const ExpenseModal = ({
 }) => {
   const nameRef = useRef<HTMLInputElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const { data: expenseData } = useQuery<ExpenseData[]>(
+    ["expenses"],
+    async () => {
+      const data = await fetch("/api/expenses");
+      return await data.json();
+    }
+  );
+
+  const queryClient = useQueryClient();
 
   const addExpense = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      const data = await fetch("/api/expenses", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const expenseData: Expense[] = await data.json();
-      setExpenses(expenseData);
-    } catch (error) {
-      console.log(error);
-    }
-
     let newColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
-    while (expenses.some((expense) => expense.color === newColor)) {
+    while (expenseData?.some((expense) => expense.color === newColor)) {
       newColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
     }
 
@@ -56,9 +53,18 @@ const ExpenseModal = ({
     amountRef.current!.value = "";
     setIsOpen(false);
   };
+
+  const addHandler = useMutation({
+    mutationFn: addExpense,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["expenses"]);
+      toast.success("Expense added successfully");
+    },
+  });
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
-      <form onSubmit={addExpense} className="flex flex-col gap-4">
+      <form onSubmit={addHandler.mutate} className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <label className="sr-only" htmlFor="name">
             Expense Name

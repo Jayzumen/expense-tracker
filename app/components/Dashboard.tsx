@@ -1,51 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import ExpenseDisplay from ".././components/ExpenseDisplay";
+import ChartDisplay from ".././components/ChartDisplay";
 import { currencyFormatter } from "../../lib/utils";
-import ExpenseDisplay from "./ExpenseDisplay";
-import ChartDisplay from "./ChartDisplay";
-import IncomeModal from "./Modals/IncomeModal";
-import ExpenseModal from "./Modals/ExpenseModal";
+import ExpenseModal from ".././components/Modals/ExpenseModal";
+import IncomeModal from ".././components/Modals/IncomeModal";
+import { useQuery } from "@tanstack/react-query";
 
 const Dashboard = () => {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [limit, setLimit] = useState(0);
 
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-
-  const getLimit = async () => {
-    const response = await fetch("/api/income", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    const limit = data.reduce((acc: number, curr: Income) => {
-      return acc + curr.amount;
-    }, 0);
-    setLimit(limit);
-  };
-
-  const getExpenses = async () => {
-    const response = await fetch("/api/expenses", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    setExpenses(data);
-  };
-
-  useEffect(() => {
-    getLimit();
-  }, []);
-
-  useEffect(() => {
-    getExpenses();
-  }, [limit]);
+  const { data: limitData, isLoading } = useQuery<number>({
+    queryKey: ["limit"],
+    queryFn: async () => {
+      return await fetch("/api/limit").then((res) => res.json());
+    },
+    refetchInterval: 1000,
+  });
 
   return (
     <>
@@ -57,9 +30,13 @@ const Dashboard = () => {
         {/* my limit */}
         <div className="flex flex-col gap-2 py-4">
           <span className="text-sm ">My Balance</span>
-          <span className="text-xl font-semibold">
-            {currencyFormatter(limit)}
-          </span>
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <span className="text-xl font-semibold">
+              {currencyFormatter(limitData || 0)}
+            </span>
+          )}
         </div>
 
         {/* Add value buttons */}
@@ -81,10 +58,10 @@ const Dashboard = () => {
         </div>
 
         {/* list of expenses */}
-        <ExpenseDisplay expenses={expenses} />
+        <ExpenseDisplay />
 
         {/* Chart */}
-        <ChartDisplay expenses={expenses} />
+        <ChartDisplay />
       </div>
     </>
   );

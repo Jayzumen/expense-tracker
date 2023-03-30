@@ -1,13 +1,11 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+"use client";
+
+import React, { Dispatch, SetStateAction, useRef } from "react";
 import Modal from "./Modal";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { currencyFormatter } from "../../../lib/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 const IncomeModal = ({
   isOpen,
@@ -16,24 +14,15 @@ const IncomeModal = ({
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const [income, setIncome] = useState<Income[]>([]);
   const amountRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
 
-  const getIncome = async () => {
-    try {
-      const data = await fetch("/api/income", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const incomeData: Income[] = await data.json();
-      setIncome(incomeData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const queryClient = useQueryClient();
+
+  const { data: incomeData } = useQuery<IncomeData[]>(["income"], async () => {
+    const data = await fetch("/api/income");
+    return await data.json();
+  });
 
   const deleteIncomeEntry = async (id: string) => {
     try {
@@ -46,11 +35,25 @@ const IncomeModal = ({
           id,
         }),
       });
-      getIncome();
     } catch (error) {
       console.log(error);
     }
   };
+  const deleteHandler = useMutation({
+    mutationFn: deleteIncomeEntry,
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries(["income"]);
+      const previousIncome = queryClient.getQueryData<ExpenseData[]>([
+        "income",
+      ]);
+      queryClient.setQueryData<ExpenseData[]>(
+        ["income"],
+        previousIncome?.filter((e) => e.id !== id)
+      );
+      toast.success("Income deleted successfully");
+      return { previousIncome };
+    },
+  });
 
   const addIncome = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,12 +76,17 @@ const IncomeModal = ({
     descriptionRef.current!.value = "";
   };
 
-  useEffect(() => {
-    getIncome();
-  }, []);
+  const addHandler = useMutation({
+    mutationFn: addIncome,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["income"]);
+      toast.success("Income added successfully");
+    },
+  });
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
-      <form onSubmit={addIncome} className="flex flex-col gap-4">
+      <form onSubmit={addHandler.mutate} className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
           <label className="sr-only" htmlFor="income">
             Income
@@ -117,7 +125,7 @@ const IncomeModal = ({
       <div className="flex flex-col gap-4 mt-6">
         <h3 className="text-2xl font-bold">Income History</h3>
 
-        {income.map((i) => {
+        {incomeData?.map((i) => {
           const date = new Date(i.createdAt);
           return (
             <div className="flex justify-between item-center" key={i.id}>
@@ -129,7 +137,7 @@ const IncomeModal = ({
                 {currencyFormatter(i.amount)}
                 <button
                   onClick={() => {
-                    deleteIncomeEntry(i.id);
+                    deleteHandler.mutate(i.id);
                   }}
                 >
                   <FaRegTrashAlt />

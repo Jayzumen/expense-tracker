@@ -3,6 +3,8 @@ import Navbar from "./components/Nav/Navbar";
 import { ClerkProvider } from "@clerk/nextjs/app-beta";
 import { dark } from "@clerk/themes";
 import Toast from "./components/Utils/Toast";
+import Providers from "./util/Provider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export const metadata = {
   title: "Expense-Tracker",
@@ -22,9 +24,12 @@ export default async function RootLayout({
         }}
       >
         <body className="relative text-white bg-slate-900">
-          <Navbar />
-          {children}
-          <Toast />
+          <Providers>
+            <Navbar />
+            {children}
+            <Toast />
+            <ReactQueryDevtools />
+          </Providers>
         </body>
       </ClerkProvider>
     </html>

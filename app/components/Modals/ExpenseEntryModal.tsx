@@ -1,18 +1,29 @@
+"use client";
+
 import React, { Dispatch, SetStateAction } from "react";
 import Modal from "./Modal";
 import { currencyFormatter } from "../../../lib/utils";
 import { FaRegTrashAlt } from "react-icons/fa";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
 const ExpenseEntryModal = ({
   isOpen,
   setIsOpen,
-  expense,
+  id,
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  expense: Expense;
+  id: string;
 }) => {
-  const date = new Date(expense.createdAt);
+  const queryClient = useQueryClient();
+
+  const { data: expense, status } = useQuery<ExpenseData>({
+    queryKey: ["expense", id],
+    queryFn: async () => {
+      return await fetch(`/api/expenses/${id}`).then((res) => res.json());
+    },
+  });
 
   const deleteExpenseEntry = async (id: string) => {
     try {
@@ -30,20 +41,46 @@ const ExpenseEntryModal = ({
     }
   };
 
+  const deleteHandler = useMutation({
+    mutationFn: deleteExpenseEntry,
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries(["expenses"]);
+      const previousExpenses = queryClient.getQueryData<ExpenseData[]>([
+        "expenses",
+      ]);
+      queryClient.setQueryData<ExpenseData[]>(
+        ["expenses"],
+        previousExpenses?.filter((e) => e.id !== id)
+      );
+      toast.success("Expense deleted successfully");
+      return { previousExpenses };
+    },
+  });
+
+  const date = new Date(expense?.createdAt!);
+
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
       <div className="flex flex-col items-center gap-4">
-        <p className="text-3xl capitalize">{expense.name}</p>
-        <p>{date.toLocaleString()}</p>
-        <p>{currencyFormatter(expense.amount)}</p>
-        <button
-          onClick={() => {
-            deleteExpenseEntry(expense.id);
-            setIsOpen(false);
-          }}
-        >
-          <FaRegTrashAlt />
-        </button>
+        {status === "loading" ? (
+          <p>Loading...</p>
+        ) : status === "error" ? (
+          <p>Something went wrong</p>
+        ) : (
+          <>
+            <p className="text-3xl capitalize">{expense.name}</p>
+            <p>{date.toLocaleString()}</p>
+            <p>{currencyFormatter(expense.amount)}</p>
+            <button
+              onClick={() => {
+                deleteHandler.mutate(expense.id);
+                setIsOpen(false);
+              }}
+            >
+              <FaRegTrashAlt />
+            </button>
+          </>
+        )}
       </div>
     </Modal>
   );

@@ -1,14 +1,18 @@
-interface Expense {
+interface ExpenseData {
   id: string;
   name: string;
   amount: number;
   createdAt: string;
+  updatedAt: string;
   color: string;
+  user_Id: string;
 }
 
-interface Income {
+interface IncomeData {
   id: string;
-  amount: number;
   description: string;
+  amount: number;
   createdAt: string;
+  updatedAt: string;
+  user_Id: string;
 }

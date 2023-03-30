@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import prismadb from "../../../lib/prismadb";
 import { auth } from "@clerk/nextjs/app-beta";
 
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
       },
     });
 
-    return new Response(JSON.stringify(data));
+    return NextResponse.json(data);
   } catch (error) {
     console.log(error);
   }
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
       },
     });
 
-    return new Response(JSON.stringify(data));
+    return NextResponse.json(data);
   } catch (err) {
     console.log(err);
   }
@@ -51,5 +52,5 @@ export async function DELETE(req: Request) {
     console.log(err);
   }
 
-  return new Response(JSON.stringify("Deleted"));
+  return NextResponse.json({ message: "Deleted" });
 }
