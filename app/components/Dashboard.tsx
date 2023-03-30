@@ -35,8 +35,8 @@ const Dashboard = () => {
 
   return (
     <>
-      <IncomeModal isOpen={showIncomeModal} setIsOpen={setShowIncomeModal} />
-      <ExpenseModal isOpen={showExpenseModal} setIsOpen={setShowExpenseModal} />
+      {/* <IncomeModal isOpen={showIncomeModal} setIsOpen={setShowIncomeModal} /> */}
+      {/* <ExpenseModal isOpen={showExpenseModal} setIsOpen={setShowExpenseModal} /> */}
       <div className="flex flex-col gap-2 min-h-[calc(100vh-80px)] max-w-[700px] mx-auto p-4">
         <h2 className="text-2xl font-semibold text-center">My Expenses</h2>
 
@@ -76,7 +76,7 @@ const Dashboard = () => {
         <ExpenseDisplay />
 
         {/* Chart */}
-        {/* <ChartDisplay /> */}
+        <ChartDisplay />
       </div>
     </>
   );

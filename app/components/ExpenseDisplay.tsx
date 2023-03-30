@@ -21,11 +21,11 @@ const ExpenseDisplay = () => {
   };
   return (
     <>
-      <ExpenseEntryModal
+      {/* <ExpenseEntryModal
         isOpen={showExpenseModal}
         setIsOpen={setShowExpenseModal}
         id={id}
-      />
+      /> */}
 
       {status === "loading" ? (
         <p>Loading...</p>
