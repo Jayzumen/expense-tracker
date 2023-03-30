@@ -58,6 +58,9 @@ const getLimit = async () => {
 
 export default async function HomePage() {
   const user: User | null = await currentUser();
+  if (!user) {
+    return <NotLoggedIn />;
+  }
 
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery(["expenses"], getExpenses);
@@ -65,9 +68,6 @@ export default async function HomePage() {
   await queryClient.prefetchQuery(["limit"], getLimit);
   const dehydratedState = dehydrate(queryClient);
 
-  if (!user) {
-    return <NotLoggedIn />;
-  }
   return (
     <Hydrate state={dehydratedState}>
       <Dashboard />

@@ -12,12 +12,25 @@ const Dashboard = () => {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
 
+  const { data: income } = useQuery<IncomeData[]>({
+    queryKey: ["income"],
+    queryFn: async () => {
+      return await fetch("/api/income").then((res) => res.json());
+    },
+  });
+
+  const { data: expenses } = useQuery<ExpenseData[]>({
+    queryKey: ["expenses"],
+    queryFn: async () => {
+      return await fetch("/api/expenses").then((res) => res.json());
+    },
+  });
+
   const { data: limitData, status } = useQuery<number>({
-    queryKey: ["limit"],
+    queryKey: ["limit", income, expenses],
     queryFn: async () => {
       return await fetch("/api/limit").then((res) => res.json());
     },
-    refetchInterval: 1000,
   });
 
   return (
