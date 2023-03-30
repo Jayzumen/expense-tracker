@@ -76,7 +76,7 @@ const Dashboard = () => {
         <ExpenseDisplay />
 
         {/* Chart */}
-        <ChartDisplay />
+        {/* <ChartDisplay /> */}
       </div>
     </>
   );
