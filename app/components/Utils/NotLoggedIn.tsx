@@ -1,5 +1,3 @@
-"use client";
-
 const NotLoggedIn = () => {
   return (
     <div className="flex flex-col gap-4 pt-20 text-center">

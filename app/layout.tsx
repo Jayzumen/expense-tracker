@@ -27,9 +27,9 @@ export default async function RootLayout({
           <Providers>
             <Navbar />
             {children}
-            <Toast />
             <ReactQueryDevtools />
           </Providers>
+          <Toast />
         </body>
       </ClerkProvider>
     </html>

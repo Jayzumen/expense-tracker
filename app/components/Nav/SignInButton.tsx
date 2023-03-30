@@ -1,7 +1,7 @@
 "use client";
 import { useClerk } from "@clerk/nextjs/app-beta/client";
 
-const AuthButton = () => {
+const SignInButton = () => {
   const { openSignIn } = useClerk();
   return (
     <div className="flex items-center">
@@ -16,4 +16,4 @@ const AuthButton = () => {
   );
 };
 
-export default AuthButton;
+export default SignInButton;
