@@ -8,7 +8,7 @@ const ExpenseDisplay = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [id, setId] = useState("");
 
-  const { data: expenseData, isLoading } = useQuery<ExpenseData[]>({
+  const { data: expenseData, status } = useQuery<ExpenseData[]>({
     queryKey: ["expenses"],
     queryFn: async () => {
       return await fetch("/api/expenses").then((res) => res.json());
@@ -27,7 +27,7 @@ const ExpenseDisplay = () => {
         id={id}
       />
 
-      {isLoading ? (
+      {status === "loading" ? (
         <p>Loading...</p>
       ) : (
         <div className="flex flex-col gap-4">
@@ -40,6 +40,7 @@ const ExpenseDisplay = () => {
               >
                 <div className="flex items-center gap-2">
                   <button
+                    aria-label="Open modal to edit expense"
                     onClick={() => openModal(e.id)}
                     className="w-6 h-6 rounded-full"
                     style={{
@@ -48,7 +49,7 @@ const ExpenseDisplay = () => {
                   />
                   <div className="flex flex-col">
                     <span className="font-semibold captitalize">{e.name}</span>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-sky-400">
                       {date.toLocaleString()}
                     </span>
                   </div>

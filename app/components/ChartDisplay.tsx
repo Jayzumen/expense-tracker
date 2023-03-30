@@ -7,7 +7,7 @@ import { Doughnut } from "react-chartjs-2";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ChartDisplay = () => {
-  const { data: expenseData, isLoading } = useQuery<ExpenseData[]>({
+  const { data: expenseData, status } = useQuery<ExpenseData[]>({
     queryKey: ["expenses"],
     queryFn: async () => {
       return await fetch("/api/expenses").then((res) => res.json());
@@ -16,24 +16,27 @@ const ChartDisplay = () => {
 
   return (
     <section className="py-6">
-      <h3 className="text-2xl text-center">Stats</h3>
-      {isLoading && <p>Loading...</p>}
-      <div className="w-1/2 mx-auto">
-        <Doughnut
-          data={{
-            labels: expenseData?.map((expense) => expense.name),
-            datasets: [
-              {
-                label: "Expenses",
-                data: expenseData?.map((expense) => expense.amount),
-                backgroundColor: expenseData?.map((expense) => expense.color),
-                borderColor: ["#18181b"],
-                borderWidth: 1,
-              },
-            ],
-          }}
-        />
-      </div>
+      <p className="text-2xl text-center">Stats</p>
+      {status === "loading" ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="w-1/2 mx-auto">
+          <Doughnut
+            data={{
+              labels: expenseData?.map((expense) => expense.name),
+              datasets: [
+                {
+                  label: "Expenses",
+                  data: expenseData?.map((expense) => expense.amount),
+                  backgroundColor: expenseData?.map((expense) => expense.color),
+                  borderColor: ["#18181b"],
+                  borderWidth: 1,
+                },
+              ],
+            }}
+          />
+        </div>
+      )}
     </section>
   );
 };

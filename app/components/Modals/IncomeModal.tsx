@@ -117,13 +117,16 @@ const IncomeModal = ({
             required
           />
         </div>
-        <button className="px-4 py-2 mx-auto rounded-lg hover:bg-sky-600 bg-sky-700">
+        <button
+          aria-label="Add income"
+          className="px-4 py-2 mx-auto rounded-lg hover:bg-sky-600 bg-sky-700"
+        >
           Add Income
         </button>
       </form>
 
       <div className="flex flex-col gap-4 mt-6">
-        <h3 className="text-2xl font-bold">Income History</h3>
+        <p className="text-2xl font-bold">Income History</p>
 
         {incomeData?.map((i) => {
           const date = new Date(i.createdAt);
@@ -136,6 +139,7 @@ const IncomeModal = ({
               <p className="flex items-center gap-2">
                 {currencyFormatter(i.amount)}
                 <button
+                  aria-label="Delete Income"
                   onClick={() => {
                     deleteHandler.mutate(i.id);
                   }}

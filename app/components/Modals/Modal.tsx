@@ -22,6 +22,7 @@ const Modal = ({
       >
         <div className="container mx-auto max-w-2xl min-h-[80vh] rounded-3xl bg-slate-800 p-4">
           <button
+            aria-label="Close modal"
             onClick={() => setIsOpen(false)}
             className="transition rounded-full bg-slate-500 hover:scale-105 hover:text-slate-600"
           >

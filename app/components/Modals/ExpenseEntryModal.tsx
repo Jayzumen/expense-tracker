@@ -72,6 +72,7 @@ const ExpenseEntryModal = ({
             <p>{date.toLocaleString()}</p>
             <p>{currencyFormatter(expense.amount)}</p>
             <button
+              aria-label="Delete expense entry"
               onClick={() => {
                 deleteHandler.mutate(expense.id);
                 setIsOpen(false);
