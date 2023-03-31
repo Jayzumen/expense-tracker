@@ -62,15 +62,23 @@ export default async function HomePage() {
     return <NotLoggedIn />;
   }
 
-  const queryClient = getQueryClient();
-  await queryClient.prefetchQuery(["expenses"], getExpenses);
-  await queryClient.prefetchQuery(["income"], getIncome);
-  await queryClient.prefetchQuery(["limit"], getLimit);
-  const dehydratedState = dehydrate(queryClient);
+  const expenses = await getExpenses();
+  const income = await getIncome();
+  const limit = await getLimit();
+
+  // const queryClient = getQueryClient();
+  // await queryClient.prefetchQuery(["expenses"], getExpenses);
+  // await queryClient.prefetchQuery(["income"], getIncome);
+  // await queryClient.prefetchQuery(["limit"], getLimit);
+  // const dehydratedState = dehydrate(queryClient);
 
   return (
-    <Hydrate state={dehydratedState}>
-      <Dashboard />
-    </Hydrate>
+    // <Hydrate state={dehydratedState}>
+    <Dashboard
+      initialExpenses={expenses}
+      initialIncome={income}
+      limit={limit}
+    />
+    // </Hydrate>
   );
 }

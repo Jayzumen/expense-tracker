@@ -7,30 +7,42 @@ import { currencyFormatter } from "../../lib/utils";
 import ExpenseModal from ".././components/Modals/ExpenseModal";
 import IncomeModal from ".././components/Modals/IncomeModal";
 import { useQuery } from "@tanstack/react-query";
+import { Expense, Income } from "@prisma/client";
 
-const Dashboard = () => {
+const Dashboard = ({
+  initialExpenses,
+  initialIncome,
+  limit,
+}: {
+  initialExpenses: Expense[];
+  initialIncome: Income[];
+  limit: number;
+}) => {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
 
-  const { data: income } = useQuery<IncomeData[]>({
+  const { data: incomeData } = useQuery<Income[]>({
     queryKey: ["income"],
     queryFn: async () => {
       return await fetch("/api/income").then((res) => res.json());
     },
+    initialData: initialIncome,
   });
 
-  const { data: expenses } = useQuery<ExpenseData[]>({
+  const { data: expensesData } = useQuery<Expense[]>({
     queryKey: ["expenses"],
     queryFn: async () => {
       return await fetch("/api/expenses").then((res) => res.json());
     },
+    initialData: initialExpenses,
   });
 
   const { data: limitData, status } = useQuery<number>({
-    queryKey: ["limit", income, expenses],
+    queryKey: ["limit", incomeData, expensesData],
     queryFn: async () => {
       return await fetch("/api/limit").then((res) => res.json());
     },
+    initialData: limit,
   });
 
   return (
@@ -43,8 +55,8 @@ const Dashboard = () => {
         {/* my limit */}
         <div className="flex flex-col gap-2 py-4">
           <span className="text-sm">My Balance</span>
-          {status === "loading" ? (
-            <p>Loading...</p>
+          {status === "error" ? (
+            <p>An error accured</p>
           ) : (
             <span className="text-xl font-semibold">
               {currencyFormatter(limitData || 0)}
