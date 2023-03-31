@@ -1,13 +1,15 @@
 "use client";
 
+import { Expense } from "@/types/finances";
 import { useQuery } from "@tanstack/react-query";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
+import { LoadingSpinner } from "../util/loading";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ChartDisplay = () => {
-  const { data: expenseData, status } = useQuery<ExpenseData[]>({
+  const { data: expenseData, status } = useQuery<Expense[]>({
     queryKey: ["expenses"],
     queryFn: async () => {
       return await fetch("/api/expenses").then((res) => res.json());
@@ -18,7 +20,7 @@ const ChartDisplay = () => {
     <section className="py-6">
       <p className="text-2xl text-center">Stats</p>
       {status === "loading" ? (
-        <p>Loading...</p>
+        <LoadingSpinner size={24} />
       ) : (
         <div className="w-1/2 mx-auto">
           <Doughnut

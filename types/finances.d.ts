@@ -1,18 +1,6 @@
-interface ExpenseData {
-  id: string;
-  name: string;
-  amount: number;
-  createdAt: string;
-  updatedAt: string;
-  color: string;
-  user_Id: string;
-}
+import { income, expense } from "@/lib/schema";
+import { InferModel } from "drizzle-orm";
 
-interface IncomeData {
-  id: string;
-  description: string;
-  amount: number;
-  createdAt: string;
-  updatedAt: string;
-  user_Id: string;
-}
+type Income = InferModel<typeof income>;
+
+type Expense = InferModel<typeof expense>;

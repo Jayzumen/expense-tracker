@@ -3,12 +3,14 @@ import { useState } from "react";
 import { currencyFormatter } from "../../lib/utils";
 import ExpenseEntryModal from "./Modals/ExpenseEntryModal";
 import { useQuery } from "@tanstack/react-query";
+import { Expense } from "@/types/finances";
+import { LoadingSpinner } from "../util/loading";
 
 const ExpenseDisplay = () => {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [id, setId] = useState("");
 
-  const { data: expenseData, status } = useQuery<ExpenseData[]>({
+  const { data: expenseData, status } = useQuery<Expense[]>({
     queryKey: ["expenses"],
     queryFn: async () => {
       return await fetch("/api/expenses").then((res) => res.json());
@@ -28,11 +30,11 @@ const ExpenseDisplay = () => {
       />
 
       {status === "loading" ? (
-        <p>Loading...</p>
+        <LoadingSpinner size={24} />
       ) : (
         <div className="flex flex-col gap-4">
           {expenseData?.map((e) => {
-            const date = new Date(e.createdAt);
+            const date = new Date(e.created_at);
             return (
               <div
                 key={e.id}

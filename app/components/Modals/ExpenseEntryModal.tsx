@@ -6,6 +6,7 @@ import { currencyFormatter } from "../../../lib/utils";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { Expense } from "@/types/finances";
 
 const ExpenseEntryModal = ({
   isOpen,
@@ -18,7 +19,7 @@ const ExpenseEntryModal = ({
 }) => {
   const queryClient = useQueryClient();
 
-  const { data: expense, status } = useQuery<ExpenseData>({
+  const { data: expense, status } = useQuery<Expense>({
     queryKey: ["expense", id],
     queryFn: async () => {
       return await fetch(`/api/expenses/${id}`).then((res) => res.json());
@@ -45,10 +46,10 @@ const ExpenseEntryModal = ({
     mutationFn: deleteExpenseEntry,
     onMutate: async (id: string) => {
       await queryClient.cancelQueries(["expenses"]);
-      const previousExpenses = queryClient.getQueryData<ExpenseData[]>([
+      const previousExpenses = queryClient.getQueryData<Expense[]>([
         "expenses",
       ]);
-      queryClient.setQueryData<ExpenseData[]>(
+      queryClient.setQueryData<Expense[]>(
         ["expenses"],
         previousExpenses?.filter((e) => e.id !== id)
       );
@@ -57,7 +58,7 @@ const ExpenseEntryModal = ({
     },
   });
 
-  const date = new Date(expense?.createdAt!);
+  const date = new Date(expense?.created_at!);
 
   return (
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>

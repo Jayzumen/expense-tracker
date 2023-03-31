@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useRef } from "react";
 import Modal from "./Modal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { Expense } from "@/types/finances";
 
 const ExpenseModal = ({
   isOpen,
@@ -14,13 +15,10 @@ const ExpenseModal = ({
 }) => {
   const nameRef = useRef<HTMLInputElement>(null);
   const amountRef = useRef<HTMLInputElement>(null);
-  const { data: expenseData } = useQuery<ExpenseData[]>(
-    ["expenses"],
-    async () => {
-      const data = await fetch("/api/expenses");
-      return await data.json();
-    }
-  );
+  const { data: expenseData } = useQuery<Expense[]>(["expenses"], async () => {
+    const data = await fetch("/api/expenses");
+    return await data.json();
+  });
 
   const queryClient = useQueryClient();
 

@@ -7,17 +7,10 @@ import { currencyFormatter } from "../../lib/utils";
 import ExpenseModal from ".././components/Modals/ExpenseModal";
 import IncomeModal from ".././components/Modals/IncomeModal";
 import { useQuery } from "@tanstack/react-query";
-import { Expense, Income } from "@prisma/client";
+import { Expense, Income } from "@/types/finances";
+import { LoadingSpinner } from "../util/loading";
 
-const Dashboard = ({
-  initialExpenses,
-  initialIncome,
-  limit,
-}: {
-  initialExpenses: Expense[];
-  initialIncome: Income[];
-  limit: number;
-}) => {
+const Dashboard = () => {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
 
@@ -26,7 +19,6 @@ const Dashboard = ({
     queryFn: async () => {
       return await fetch("/api/income").then((res) => res.json());
     },
-    initialData: initialIncome,
   });
 
   const { data: expensesData } = useQuery<Expense[]>({
@@ -34,7 +26,6 @@ const Dashboard = ({
     queryFn: async () => {
       return await fetch("/api/expenses").then((res) => res.json());
     },
-    initialData: initialExpenses,
   });
 
   const { data: limitData, status } = useQuery<number>({
@@ -42,7 +33,6 @@ const Dashboard = ({
     queryFn: async () => {
       return await fetch("/api/limit").then((res) => res.json());
     },
-    initialData: limit,
   });
 
   return (
@@ -55,8 +45,8 @@ const Dashboard = ({
         {/* my limit */}
         <div className="flex flex-col gap-2 py-4">
           <span className="text-sm">My Balance</span>
-          {status === "error" ? (
-            <p>An error accured</p>
+          {status === "loading" ? (
+            <LoadingSpinner size={24} />
           ) : (
             <span className="text-xl font-semibold">
               {currencyFormatter(limitData || 0)}

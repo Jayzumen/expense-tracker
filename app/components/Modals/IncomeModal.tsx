@@ -6,6 +6,8 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { currencyFormatter } from "../../../lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
+import { Expense, Income } from "@/types/finances";
+import { LoadingSpinner } from "@/app/util/loading";
 
 const IncomeModal = ({
   isOpen,
@@ -19,10 +21,13 @@ const IncomeModal = ({
 
   const queryClient = useQueryClient();
 
-  const { data: incomeData } = useQuery<IncomeData[]>(["income"], async () => {
-    const data = await fetch("/api/income");
-    return await data.json();
-  });
+  const { data: incomeData, status } = useQuery<Income[]>(
+    ["income"],
+    async () => {
+      const data = await fetch("/api/income");
+      return await data.json();
+    }
+  );
 
   const deleteIncomeEntry = async (id: string) => {
     try {
@@ -43,10 +48,8 @@ const IncomeModal = ({
     mutationFn: deleteIncomeEntry,
     onMutate: async (id: string) => {
       await queryClient.cancelQueries(["income"]);
-      const previousIncome = queryClient.getQueryData<ExpenseData[]>([
-        "income",
-      ]);
-      queryClient.setQueryData<ExpenseData[]>(
+      const previousIncome = queryClient.getQueryData<Expense[]>(["income"]);
+      queryClient.setQueryData<Expense[]>(
         ["income"],
         previousIncome?.filter((e) => e.id !== id)
       );
@@ -128,28 +131,32 @@ const IncomeModal = ({
       <div className="flex flex-col gap-4 mt-6">
         <p className="text-2xl font-bold">Income History</p>
 
-        {incomeData?.map((i) => {
-          const date = new Date(i.createdAt);
-          return (
-            <div className="flex justify-between item-center" key={i.id}>
-              <div>
-                <p className="font-semibold">{i.description}</p>
-                <small className="text-xs">{date.toLocaleString()}</small>
+        {status === "loading" ? (
+          <LoadingSpinner size={24} />
+        ) : (
+          incomeData?.map((i) => {
+            const date = new Date(i.created_at);
+            return (
+              <div className="flex justify-between item-center" key={i.id}>
+                <div>
+                  <p className="font-semibold">{i.description}</p>
+                  <small className="text-xs">{date.toLocaleString()}</small>
+                </div>
+                <p className="flex items-center gap-2">
+                  {currencyFormatter(i.amount)}
+                  <button
+                    aria-label="Delete Income"
+                    onClick={() => {
+                      deleteHandler.mutate(i.id);
+                    }}
+                  >
+                    <FaRegTrashAlt />
+                  </button>
+                </p>
               </div>
-              <p className="flex items-center gap-2">
-                {currencyFormatter(i.amount)}
-                <button
-                  aria-label="Delete Income"
-                  onClick={() => {
-                    deleteHandler.mutate(i.id);
-                  }}
-                >
-                  <FaRegTrashAlt />
-                </button>
-              </p>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </Modal>
   );
