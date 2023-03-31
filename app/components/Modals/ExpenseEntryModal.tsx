@@ -7,6 +7,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 import { Expense } from "@/types/finances";
+import { LoadingSpinner } from "@/app/util/loading";
 
 const ExpenseEntryModal = ({
   isOpen,
@@ -64,7 +65,9 @@ const ExpenseEntryModal = ({
     <Modal isOpen={isOpen} setIsOpen={setIsOpen}>
       <div className="flex flex-col items-center gap-4">
         {status === "loading" ? (
-          <p>Loading...</p>
+          <div className="flex items-center">
+            <LoadingSpinner size={48} />
+          </div>
         ) : status === "error" ? (
           <p>Something went wrong</p>
         ) : (

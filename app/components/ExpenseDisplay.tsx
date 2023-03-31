@@ -30,7 +30,9 @@ const ExpenseDisplay = () => {
       />
 
       {status === "loading" ? (
-        <LoadingSpinner size={24} />
+        <div className="flex items-center">
+          <LoadingSpinner size={48} />
+        </div>
       ) : (
         <div className="flex flex-col gap-4">
           {expenseData?.map((e) => {

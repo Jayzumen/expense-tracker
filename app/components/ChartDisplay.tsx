@@ -20,7 +20,9 @@ const ChartDisplay = () => {
     <section className="py-6">
       <p className="text-2xl text-center">Stats</p>
       {status === "loading" ? (
-        <LoadingSpinner size={24} />
+        <div className="flex items-center">
+          <LoadingSpinner size={48} />
+        </div>
       ) : (
         <div className="w-1/2 mx-auto">
           <Doughnut

@@ -46,7 +46,9 @@ const Dashboard = () => {
         <div className="flex flex-col gap-2 py-4">
           <span className="text-sm">My Balance</span>
           {status === "loading" ? (
-            <LoadingSpinner size={24} />
+            <div className="flex items-center">
+              <LoadingSpinner size={24} />
+            </div>
           ) : (
             <span className="text-xl font-semibold">
               {currencyFormatter(limitData || 0)}
