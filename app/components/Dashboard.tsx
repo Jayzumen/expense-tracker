@@ -51,7 +51,7 @@ const Dashboard = () => {
             </div>
           ) : (
             <span className="text-xl font-semibold">
-              {currencyFormatter(limitData || 0)}
+              {currencyFormatter(limitData!)}
             </span>
           )}
         </div>

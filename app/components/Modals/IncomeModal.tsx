@@ -134,28 +134,30 @@ const IncomeModal = ({
         {status === "loading" ? (
           <LoadingSpinner size={24} />
         ) : (
-          incomeData?.map((i) => {
-            const date = new Date(i.created_at);
-            return (
-              <div className="flex justify-between item-center" key={i.id}>
-                <div>
-                  <p className="font-semibold">{i.description}</p>
-                  <small className="text-xs">{date.toLocaleString()}</small>
+          incomeData
+            ?.sort((a, b) => Number(a.created_at) - Number(b.created_at))
+            .map((i) => {
+              const date = new Date(i.created_at);
+              return (
+                <div className="flex justify-between item-center" key={i.id}>
+                  <div>
+                    <p className="font-semibold">{i.description}</p>
+                    <small className="text-xs">{date.toLocaleString()}</small>
+                  </div>
+                  <p className="flex items-center gap-2">
+                    {currencyFormatter(i.amount)}
+                    <button
+                      aria-label="Delete Income"
+                      onClick={() => {
+                        deleteHandler.mutate(i.id);
+                      }}
+                    >
+                      <FaRegTrashAlt />
+                    </button>
+                  </p>
                 </div>
-                <p className="flex items-center gap-2">
-                  {currencyFormatter(i.amount)}
-                  <button
-                    aria-label="Delete Income"
-                    onClick={() => {
-                      deleteHandler.mutate(i.id);
-                    }}
-                  >
-                    <FaRegTrashAlt />
-                  </button>
-                </p>
-              </div>
-            );
-          })
+              );
+            })
         )}
       </div>
     </Modal>
